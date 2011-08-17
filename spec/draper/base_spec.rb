@@ -768,4 +768,21 @@ describe Draper::Base do
       end
     end
   end
+
+  context ".serializes" do
+    let(:decorator){ SerializableDecorator.decorate(Serializable.new) }
+
+    describe "#as_json" do
+      subject { decorator.as_json }
+
+      it "should serialize as directed" do
+        decorator.as_json.should == {
+          :deco => "deco",
+          :foo => "foo",
+          :bar_renamed => "bar",
+          :literal => "Literal"
+        }
+      end
+    end
+  end
 end
