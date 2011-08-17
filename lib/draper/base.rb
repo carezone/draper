@@ -2,8 +2,9 @@ module Draper
   class Base
     require 'active_support/core_ext/class/attribute'
     require 'active_support/core_ext/array/extract_options'
+    require 'active_support/json'
 
-    class_attribute :denied, :allowed, :model_class
+    class_attribute :denied, :allowed, :serialize_spec, :model_class
     attr_accessor :model, :options
 
     DEFAULT_DENIED = Object.instance_methods << :method_missing
@@ -154,6 +155,43 @@ module Draper
       else
         new(input, options)
       end
+    end
+
+    def self.serializes(*serialize_spec)
+      methods = {}
+      literals = {}
+
+      serialize_spec.each do |spec|
+        case spec
+        when Symbol
+          methods[spec] = spec
+        when Hash
+          spec.each_pair do |k, v|
+            if v.is_a?(Symbol)
+              methods[k] = v
+            else
+              literals[k] = v.as_json
+            end
+          end
+        else
+          raise ArgumentError, "#{spec.inspect} is invalid. Specify :attr, {:attr => :model_attr}, or {:attr => 'literal'}."
+        end
+      end
+
+      self.serialize_spec = {:methods => methods, :literals => literals}
+    end
+
+    def as_json(options = nil)
+      spec = self.serialize_spec
+      return super unless spec
+
+      unless !options || (options.keys & [:only, :except, :methods]).empty?
+        raise ArgumentError, "No options are supported for Draper::Base.as_json"
+      end
+
+      json = {}
+      spec[:methods].each_pair { |k, v| json[k] = send(v).as_json }
+      json.merge!(spec[:literals])
     end
 
     # Fetch all instances of the decorated class and decorate them.
