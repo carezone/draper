@@ -61,7 +61,7 @@ module Draper
       self.serialize_spec = {:methods => methods, :literals => literals}
     end
 
-    def as_json(options)
+    def as_json(options = nil)
       spec = self.serialize_spec
       return super unless spec
 
