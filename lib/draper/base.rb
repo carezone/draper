@@ -8,7 +8,7 @@ module Draper
     FORCED_PROXY = [:to_param]
     self.denied = DEFAULT_DENIED
 
-    def initialize(input, context = nil)
+    def initialize(input, context = {})
       input.inspect
       self.class.model_class = input.class if model_class.nil?
       @model = input
@@ -74,7 +74,7 @@ module Draper
       json.merge!(spec[:literals])
     end
 
-    def self.decorate(input, context = nil)
+    def self.decorate(input, context = {})
       input.respond_to?(:each) ? input.map{|i| new(i, context)} : new(input, context)
     end
 
