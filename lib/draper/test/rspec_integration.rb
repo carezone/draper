@@ -19,6 +19,7 @@ RSpec.configure do |config|
   end
 
   config.before :type => :view do
+    setup_with_controller unless controller.present?
     controller.set_current_view_context
   end
 end
