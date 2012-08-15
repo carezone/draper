@@ -18,10 +18,6 @@ RSpec.configure do |config|
     Draper::ViewContext.infect!(self)
   end
 
-  config.before :type => :view do
-    setup_with_controller unless controller.present?
-    controller.set_current_view_context
-  end
 end
 
 if defined?(Capybara)
